@@ -1,0 +1,12 @@
+apiVersion: v1
+appVersion: "1.0"
+description: JIRA on Kubernetes backed by PersistentVolumeClaim
+name: atlassian-jira
+version: 0.1.0
+keywords:
+    - jira
+    - devops
+home: https://github.com/mateothegreat/
+maintainers:
+    - name: mateothegreat
+      email: matthew@appsoa.io

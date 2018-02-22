@@ -1,0 +1,84 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "atlassian-jira.fullname" . }}
+  labels:
+    app: {{ template "atlassian-jira.name" . }}
+    chart: {{ template "atlassian-jira.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "atlassian-jira.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "atlassian-jira.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: JVM_MINIMUM_MEMORY
+              value: {{ .Values.jvm.minimumMemory | quote }}
+            - name: JVM_MAXIMUM_MEMORY
+              value: {{ .Values.jvm.maximumMemory | quote }}
+            - name: CATALINA_OPTS
+              value: "-Xms{{ .Values.jvm.minimumMemory }} -Xmx{{ .Values.jvm.maximumMemory }}"
+            {{- if .Values.proxy.enabled }}
+            - name: X_PROXY_NAME
+              value: {{ .Values.proxy.host | quote }}
+            - name: X_PROXY_PORT
+              value: {{ .Values.proxy.port | quote }}
+            - name: X_PROXY_SCHEME
+              value: {{ .Values.proxy.scheme | quote }}
+            - name: X_PATH
+              value: {{ .Values.proxy.path | quote }}
+            {{- end }}
+{{- if .Values.additionalEnv }}
+{{ toYaml .Values.additionalEnv | indent 12 }}
+{{- end }}
+          livenessProbe:
+            httpGet:
+              path: /rest/applinks/latest/manifest
+              port: 8080
+{{ toYaml .Values.livenessProbe | indent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /rest/applinks/latest/manifest
+              port: 8080
+{{ toYaml .Values.readinessProbe | indent 12 }}
+          volumeMounts:
+          - mountPath: /var/atlassian/application-data/confluence
+            name: atlassian-jira-data
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+      - name: atlassian-jira-data
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ template "atlassian-jira.name" . }}
+      {{- else }}
+        emptyDir: {}
+      {{ end }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
