@@ -49,24 +49,23 @@ spec:
 {{- end }}
           livenessProbe:
             httpGet:
-              path: /rest/applinks/latest/manifest
-              port: 8080
+              path: /secure
+              port: http
 {{ toYaml .Values.livenessProbe | indent 12 }}
           readinessProbe:
-            httpGet:
-              path: /rest/applinks/latest/manifest
-              port: 8080
+            tcpSocket:
+              port: http
 {{ toYaml .Values.readinessProbe | indent 12 }}
           volumeMounts:
           - mountPath: /var/atlassian/application-data/confluence
-            name: atlassian-jira-data
+            name: {{ template "atlassian-jira.fullname" . }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
       volumes:
-      - name: atlassian-jira-data
+      - name: {{ template "atlassian-jira.fullname" . }}
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ template "atlassian-jira.name" . }}
+          claimName: {{ template "atlassian-jira.fullname" . }}
       {{- else }}
         emptyDir: {}
       {{ end }}

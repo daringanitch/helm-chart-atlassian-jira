@@ -30,7 +30,7 @@ ingress:
 ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
 ##
 persistence:
-  enabled: true
+  enabled: false
   ## jira data Persistent Volume Storage Class
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -41,13 +41,14 @@ persistence:
   # storageClass: "-"
   accessMode: ReadWriteOnce
   size: 8Gi
-
+#JIRA runs in a Java virtual machine (JVM), and this JVM is allocated an amount of memory to enable JIRA to run. These amountsdefault       po/fluentd-5lll9                                         1/1       Running   0          9h      │ can be manually configured.
+# 10.11.3.3    gke-cluster-6-default-pool-0f69b028-3sl5                                                       │        - The maximum memory allocation pool (-Xmx) is required to be at least 786m.
 jvm:
-  minimumMemory: 1024m
-  maximumMemory: 1024m
+  minimumMemory: 786m
+  maximumMemory: 786m
 
 proxy:
-  enabled: true
+  enabled: false
   host: "foo.bar.com"
   port: 443
   scheme: https
@@ -58,12 +59,12 @@ resources:
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  limits:
-    cpu: 100m
-    memory: 128Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi
+#  limits:
+#    cpu: 100m
+#    memory: 128Mi
+#  requests:
+#    cpu: 100m
+#    memory: 128Mi
 
 ## Configure extra options for liveness and readiness probes
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes)
@@ -86,8 +87,8 @@ tolerations: []
 
 affinity: {}
 
-additionalEnv:
-  - name: test
-    value: 123
-  - name: somethingelse
-    value: "asdf asdf asdf"
+#additionalEnv:
+#  - name: test
+#    value: 123
+#  - name: somethingelse
+#    value: "asdf asdf asdf"
